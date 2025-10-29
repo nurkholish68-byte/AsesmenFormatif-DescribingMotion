@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Fisika - GLB & GLBB</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Menggunakan font Inter sebagai default */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style untuk tombol pilihan yang dipilih */
+        .option-selected {
+            background-color: #3b82f6 !important; /* blue-500 */
+            color: white !important;
+            border-color: #2563eb !important; /* blue-700 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl mx-auto">
+        
+        <!-- == RUNNING TEXT DITAMBAHKAN DI SINI == -->
+        <marquee class="bg-gray-800 text-white py-2 px-4 rounded-lg shadow-md mb-4 font-medium" behavior="scroll" direction="left" scrollamount="5">
+            Asesmen Formatif : Describing Motion, Kelas X SMA YPS Soroako
+        </marquee>
+        <!-- ==================================== -->
+
+        <!-- 1. Bagian Informasi Pengguna (Form Awal) -->
+        <div id="userInfo" class="bg-white p-8 rounded-xl shadow-lg transition-all">
+            <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Kuis Fisika: GLB & GLBB</h1>
+            <p class="text-center text-gray-600 mb-8">Silakan isi data diri Anda sebelum memulai kuis.</p>
+            <form id="userForm">
+                <div class="mb-4">
+                    <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                    <input type="text" id="nama" name="nama" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="kelas" class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+                    <input type="text" id="kelas" name="kelas" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email (Opsional)</label>
+                    <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="button" id="startBtn" class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-transform transform hover:scale-105">
+                    Mulai Kuis
+                </button>
+            </form>
+        </div>
+
+        <!-- 2. Bagian Kuis (Tersembunyi) -->
+        <div id="quizContainer" class="bg-white p-8 rounded-xl shadow-lg hidden transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-blue-600">Kuis Fisika</h2>
+                <div id="questionCounter" class="text-lg font-semibold text-gray-700">Soal 1 / 20</div>
+            </div>
+            
+            <!-- Konten Soal -->
+            <div id="questionCard" class="mb-6">
+                <p id="questionText" class="text-lg text-gray-800 mb-6 leading-relaxed" style="min-height: 100px;">
+                    Memuat soal...
+                </p>
+                <div id="optionsContainer" class="space-y-3">
+                    <!-- Opsi jawaban akan dimasukkan oleh JavaScript -->
+                </div>
+            </div>
+
+            <!-- Tombol Navigasi Kuis -->
+            <div class="flex justify-between mt-8">
+                <button id="prevBtn" class="bg-gray-300 text-gray-700 font-semibold py-2 px-6 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Sebelumnya
+                </button>
+                <button id="nextBtn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                    Selanjutnya
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. Bagian Hasil (Tersembunyi) -->
+        <div id="resultsContainer" class="bg-white p-8 rounded-xl shadow-lg hidden transition-all text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">Kuis Selesai!</h1>
+            <p class="text-gray-600 mb-6">Berikut adalah hasil kuis Anda, <strong id="resultName" class="text-blue-600"></strong>.</p>
+            
+            <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                <div class="text-lg font-medium text-gray-700">Skor Anda:</div>
+                <div id="scoreText" class="text-6xl font-bold text-blue-600 my-2">
+                    0%
+                </div>
+                <div id="scoreDetails" class="text-lg text-gray-600">
+                    (Benar 0 dari 20 soal)
+                </div>
+            </div>
+
+            <button id="downloadBtn" class="w-full bg-green-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-transform transform hover:scale-105">
+                Download Hasil
+            </button>
+            <button id="restartBtn" class="w-full mt-4 bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors">
+                Ulangi Kuis
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATABASE SOAL ---
+        const questions = [
+            // --- TINGKAT MUDAH (1-5) ---
+            {
+                question: "Gerak Lurus Beraturan (GLB) adalah gerak suatu benda yang memiliki...",
+                options: ["Percepatan tetap", "Kecepatan tetap", "Lintasan melingkar", "Percepatan berubah-ubah", "Kecepatan awal nol"],
+                answer: "B"
+            },
+            {
+                question: "Sebuah mobil bergerak lurus beraturan dengan kecepatan 15 m/s. Jarak yang ditempuh mobil selama 10 detik adalah...",
+                options: ["1.5 m", "15 m", "50 m", "100 m", "150 m"],
+                answer: "E" // s = v * t = 15 * 10 = 150
+            },
+            {
+                question: "Gerak Lurus Berubah Beraturan (GLBB) adalah gerak benda yang lintasannya lurus dengan...",
+                options: ["Kecepatan tetap", "Percepatan nol", "Percepatan tetap", "Kecepatan dan percepatan berubah", "Jarak tempuh tetap"],
+                answer: "C"
+            },
+            {
+                question: "Contoh peristiwa yang termasuk GLBB dipercepat adalah...",
+                options: ["Mobil yang direm mendadak", "Buah kelapa jatuh dari pohonnya", "Mobil bergerak dengan kecepatan konstan di jalan tol", "Kelereng menggelinding di lantai datar", "Gerak jarum jam"],
+                answer: "B" // Gerak jatuh bebas, percepatannya g
+            },
+            {
+                question: "Pada grafik kecepatan (v) terhadap waktu (t) untuk GLB, bentuk grafiknya adalah...",
+                options: ["Garis lurus miring ke atas", "Garis lurus miring ke bawah", "Garis parabola", "Garis horizontal (mendatar)", "Garis vertikal"],
+                answer: "D"
+            },
+            // --- TINGKAT SEDANG (6-12) ---
+            {
+                question: "Sebuah sepeda motor bergerak dengan kecepatan 72 km/jam. Jika dinyatakan dalam SI (m/s), kecepatan motor tersebut adalah...",
+                options: ["10 m/s", "15 m/s", "20 m/s", "25 m/s", "36 m/s"],
+                answer: "C" // 72 * 1000 / 3600 = 20
+            },
+            {
+                question: "Sebuah benda awalnya diam, kemudian diberi percepatan konstan 4 m/s². Kecepatan benda setelah bergerak selama 5 detik adalah...",
+                options: ["0.8 m/s", "1.25 m/s", "9 m/s", "20 m/s", "25 m/s"],
+                answer: "D" // vt = v0 + at = 0 + 4 * 5 = 20
+            },
+            {
+                question: "Mobil balap mula-mula diam, lalu bergerak dengan percepatan 5 m/s². Jarak yang ditempuh mobil setelah 4 detik adalah...",
+                options: ["10 m", "20 m", "40 m", "80 m", "100 m"],
+                answer: "C" // s = v0t + 1/2 * a * t^2 = 0 + 1/2 * 5 * 4^2 = 0.5 * 5 * 16 = 40
+            },
+            {
+                question: "Grafik kecepatan (v) terhadap waktu (t) pada GLBB berbentuk garis lurus miring. Kemiringan (gradien) dari grafik tersebut menunjukkan...",
+                options: ["Jarak tempuh", "Perpindahan", "Kecepatan rata-rata", "Percepatan", "Waktu tempuh"],
+                answer: "D"
+            },
+            {
+                question: "Sebuah mobil yang sedang melaju dengan kecepatan 20 m/s direm hingga berhenti dalam waktu 4 detik. Perlambatan yang dialami mobil adalah...",
+                options: ["2 m/s²", "4 m/s²", "5 m/s²", "10 m/s²", "80 m/s²"],
+                answer: "C" // a = (vt - v0) / t = (0 - 20) / 4 = -5. Perlambatannya 5 m/s²
+            },
+            {
+                question: "Sebuah benda bergerak dari keadaan diam dengan percepatan 2 m/s². Kecepatan benda setelah menempuh jarak 9 meter adalah...",
+                options: ["3 m/s", "4 m/s", "6 m/s", "18 m/s", "36 m/s"],
+                answer: "C" // vt^2 = v0^2 + 2as = 0 + 2 * 2 * 9 = 36. vt = sqrt(36) = 6
+            },
+            {
+                question: "Sebuah batu dijatuhkan dari atas menara (tanpa kecepatan awal). Jika percepatan gravitasi g = 10 m/s², kecepatan batu setelah 2 detik adalah...",
+                options: ["5 m/s", "10 m/s", "15 m/s", "20 m/s", "25 m/s"],
+                answer: "D" // Gerak jatuh bebas (GLBB): vt = v0 + gt = 0 + 10 * 2 = 20
+            },
+            // --- TINGKAT SULIT (13-17) ---
+            {
+                question: "Batu dijatuhkan dari atas jembatan dan menyentuh air 3 detik kemudian. Jika g = 10 m/s², ketinggian jembatan tersebut adalah...",
+                options: ["15 m", "30 m", "45 m", "60 m", "90 m"],
+                answer: "C" // s = v0t + 1/2 * g * t^2 = 0 + 1/2 * 10 * 3^2 = 5 * 9 = 45
+            },
+            {
+                question: "Sebuah bola dilempar vertikal ke atas dengan kecepatan awal 40 m/s. Jika g = 10 m/s², ketinggian maksimum yang dicapai bola adalah...",
+                options: ["20 m", "40 m", "60 m", "80 m", "100 m"],
+                answer: "D" // Di titik tertinggi, vt = 0. vt^2 = v0^2 - 2gs. 0 = 40^2 - 2*10*s. 0 = 1600 - 20s. 20s = 1600. s = 80
+            },
+            {
+                question: "Sebuah motor bergerak dengan kecepatan 15 m/s. Tiba-tiba mesinnya mati sehingga mengalami perlambatan 2 m/s². Motor akan berhenti setelah...",
+                options: ["5 s", "7.5 s", "10 s", "13 s", "30 s"],
+                answer: "B" // vt = v0 + at. 0 = 15 + (-2)t. 2t = 15. t = 7.5
+            },
+            {
+                question: "Grafik di bawah ini menunjukkan hubungan antara jarak (s) dan waktu (t) untuk sebuah benda. Bentuk grafik parabola ini menunjukkan benda bergerak...",
+                options: ["Diam", "Dengan kecepatan tetap (GLB)", "Dengan percepatan tetap (GLBB)", "Dengan kecepatan berubah tidak beraturan", "Dengan percepatan nol"],
+                answer: "C" // Grafik s-t pada GLBB berbentuk parabola (fungsi kuadratik dari t)
+            },
+            {
+                question: "Sebuah mobil bergerak dengan kecepatan 25 m/s. Karena ada halangan, mobil direm dengan perlambatan 5 m/s². Jarak yang ditempuh mobil sejak direm hingga berhenti adalah...",
+                options: ["25 m", "31.25 m", "50 m", "62.5 m", "125 m"],
+                answer: "D" // vt^2 = v0^2 + 2as. 0 = 25^2 + 2*(-5)*s. 0 = 625 - 10s. 10s = 625. s = 62.5
+            },
+            // --- TINGKAT SANGAT SULIT (18-20) ---
+            {
+                question: "Mobil A bergerak dengan kecepatan konstan 20 m/s. Tepat di sampingnya, mobil B dari keadaan diam mulai bergerak dengan percepatan 8 m/s² searah dengan mobil A. Kapan mobil B akan menyusul mobil A?",
+                options: ["2 s", "2.5 s", "4 s", "5 s", "8 s"],
+                answer: "D" // sA = sB. vA*t = v0B*t + 1/2*aB*t^2. 20t = 0 + 1/2*8*t^2. 20t = 4t^2. 4t^2 - 20t = 0. 4t(t - 5) = 0. t=0 (awal) atau t=5
+            },
+            {
+                question: "Seorang pengemudi mobil melaju dengan kecepatan 20 m/s. Ia melihat ada rintangan di depan dan membutuhkan waktu reaksi 0,5 detik untuk mulai menginjak rem. Mobil mengalami perlambatan 10 m/s² saat direm. Jarak total yang ditempuh mobil dari melihat rintangan hingga berhenti adalah...",
+                options: ["10 m", "20 m", "30 m", "40 m", "50 m"],
+                answer: "C" // s_reaksi (GLB) = v*t = 20 * 0.5 = 10 m. s_rem (GLBB) = (vt^2 - v0^2) / (2a) = (0^2 - 20^2) / (2 * -10) = -400 / -20 = 20 m. Total = 10 + 20 = 30 m.
+            },
+            {
+                question: "Perhatikan grafik v-t sebuah benda. Jarak total yang ditempuh benda dari t=0 hingga t=10 detik adalah...",
+                options: ["25 m", "50 m", "75 m", "100 m", "125 m"],
+                // NOTE: Soal ini butuh gambar. Kita asumsikan gambar sbb:
+                // 0-5s: v naik dari 0 ke 10 m/s (segitiga)
+                // 5-10s: v tetap 10 m/s (persegi panjang)
+                // Kita ubah soalnya agar tidak perlu gambar.
+                question: "Sebuah benda bergerak dari diam, dipercepat 2 m/s² selama 5 detik. Kemudian, benda bergerak dengan kecepatan konstan selama 5 detik berikutnya. Jarak total yang ditempuh benda adalah...",
+                answer: "D" // s1 (GLBB) = 1/2*a*t^2 = 1/2*2*5^2 = 25 m. v_akhir_s1 = a*t = 2*5 = 10 m/s. s2 (GLB) = v*t = 10 * 5 = 50 m. Total = 25 + 50 = 75 m.
+                // Opsi yang benar adalah 75m, jadi ganti opsi C
+            }
+        ];
+        
+        // Perbaiki soal no 20
+        questions[19] = {
+            question: "Sebuah benda bergerak dari diam, dipercepat 2 m/s² selama 5 detik. Kemudian, benda bergerak dengan kecepatan konstan (hasil akhir percepatan) selama 5 detik berikutnya. Jarak total yang ditempuh benda selama 10 detik itu adalah...",
+            options: ["25 m", "50 m", "60 m", "75 m", "100 m"],
+            answer: "D" // s1 (GLBB) = 1/2*a*t^2 = 1/2*2*5^2 = 25 m. v_akhir_s1 = a*t = 2*5 = 10 m/s. s2 (GLB) = v*t = 10 * 5 = 50 m. Total = 25 + 50 = 75 m.
+        };
+
+
+        // --- ELEMEN DOM ---
+        const userInfoDiv = document.getElementById('userInfo');
+        const quizContainerDiv = document.getElementById('quizContainer');
+        const resultsContainerDiv = document.getElementById('resultsContainer');
+
+        const startBtn = document.getElementById('startBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const restartBtn = document.getElementById('restartBtn');
+
+        const userForm = document.getElementById('userForm');
+        const questionCounter = document.getElementById('questionCounter');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+
+        const resultName = document.getElementById('resultName');
+        const scoreText = document.getElementById('scoreText');
+        const scoreDetails = document.getElementById('scoreDetails');
+
+        // --- STATE APLIKASI ---
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let userData = {};
+        const optionLabels = ['A', 'B', 'C', 'D', 'E'];
+
+        // --- FUNGSI ---
+
+        /**
+         * Memulai Kuis
+         */
+        function startQuiz() {
+            // Ambil data pengguna
+            userData.name = document.getElementById('nama').value;
+            userData.class = document.getElementById('kelas').value;
+            userData.email = document.getElementById('email').value;
+
+            // Validasi sederhana
+            if (!userData.name || !userData.class) {
+                alert('Nama dan Kelas wajib diisi!');
+                return;
+            }
+
+            // Sembunyikan form, tampilkan kuis
+            userInfoDiv.classList.add('hidden');
+            quizContainerDiv.classList.remove('hidden');
+            
+            // Tampilkan soal pertama
+            displayQuestion();
+        }
+
+        /**
+         * Menampilkan Soal
+         */
+        function displayQuestion() {
+            const q = questions[currentQuestionIndex];
+
+            // Update nomor soal
+            questionCounter.textContent = `Soal ${currentQuestionIndex + 1} / ${questions.length}`;
+            
+            // Update teks soal
+            questionText.textContent = q.question;
+
+            // Hapus opsi sebelumnya
+            optionsContainer.innerHTML = '';
+
+            // Buat tombol opsi baru
+            q.options.forEach((option, index) => {
+                const label = optionLabels[index];
+                const button = document.createElement('button');
+                button.className = "w-full text-left px-5 py-3 border-2 border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-colors";
+                button.innerHTML = `<span class="font-bold mr-2">${label}.</span> ${option}`;
+                
+                // Tambahkan event listener
+                button.addEventListener('click', () => selectAnswer(label, button));
+
+                // Jika sudah pernah dijawab, tandai
+                if (userAnswers[currentQuestionIndex] === label) {
+                    button.classList.add('option-selected');
+                }
+                
+                optionsContainer.appendChild(button);
+            });
+
+            // Atur visibilitas tombol navigasi
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            // Ubah teks tombol "Next" menjadi "Submit" di soal terakhir
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.textContent = 'Kumpulkan Jawaban';
+            } else {
+                nextBtn.textContent = 'Selanjutnya';
+            }
+        }
+
+        /**
+         * Menyimpan Jawaban Pengguna
+         */
+        function selectAnswer(answerLabel, selectedButton) {
+            // Simpan jawaban
+            userAnswers[currentQuestionIndex] = answerLabel;
+
+            // Hapus styling 'selected' dari semua tombol di grup ini
+            document.querySelectorAll('#optionsContainer button').forEach(btn => {
+                btn.classList.remove('option-selected');
+            });
+
+            // Tambahkan styling 'selected' ke tombol yang diklik
+            selectedButton.classList.add('option-selected');
+        }
+
+        /**
+         * Ke Soal Selanjutnya
+         */
+        function nextQuestion() {
+            // Jika ini soal terakhir, panggil showResults
+            if (currentQuestionIndex === questions.length - 1) {
+                showResults();
+                return;
+            }
+
+            // Pindah ke soal berikutnya
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        /**
+         * Ke Soal Sebelumnya
+         */
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion();
+            }
+        }
+
+        /**
+         * Menghitung dan Menampilkan Hasil
+         */
+        function showResults() {
+            // Hitung skor
+            let score = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] === questions[i].answer) {
+                    score++;
+                }
+            }
+            
+            const percentage = Math.round((score / questions.length) * 100);
+
+            // Tampilkan hasil
+            resultName.textContent = userData.name;
+            scoreText.textContent = `${percentage}%`;
+            scoreDetails.textContent = `(Benar ${score} dari ${questions.length} soal)`;
+
+            // Sembunyikan kuis, tampilkan hasil
+            quizContainerDiv.classList.add('hidden');
+            resultsContainerDiv.classList.remove('hidden');
+        }
+
+        /**
+         * Membuat dan Mendownload File Hasil
+         */
+        function downloadResults() {
+            let score = 0;
+            let resultText = `HASIL KUIS FISIKA (GLB & GLBB)\n`;
+            resultText += `==================================\n\n`;
+            resultText += `Nama  : ${userData.name}\n`;
+            resultText += `Kelas : ${userData.class}\n`;
+            resultText += `Email : ${userData.email || '-'}\n\n`;
+            
+            resultText += `--- Rangkuman Jawaban ---\n\n`;
+            
+            questions.forEach((q, index) => {
+                const userAnswer = userAnswers[index];
+                const correctAnswer = q.answer;
+                const isCorrect = userAnswer === correctAnswer;
+                
+                if (isCorrect) score++;
+
+                resultText += `Soal ${index + 1}:\n`;
+                resultText += `Pertanyaan: ${q.question}\n`;
+                resultText += `Jawaban Anda: ${userAnswer || '(Tidak dijawab)'}\n`;
+                resultText += `Kunci Jawaban: ${correctAnswer}\n`;
+                resultText += `Status: ${isCorrect ? 'BENAR' : 'SALAH'}\n`;
+                resultText += `----------------------------------\n\n`;
+            });
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            
+            let summary = `--- SKOR AKHIR ---\n`;
+            summary += `Benar: ${score} / ${questions.length}\n`;
+            summary += `Nilai: ${percentage}%\n`;
+            
+            const fullResultText = summary + "\n" + resultText;
+
+            // Buat file .txt
+            const blob = new Blob([fullResultText], { type: 'text/plain' });
+            const anchor = document.createElement('a');
+            
+            anchor.href = URL.createObjectURL(blob);
+            anchor.download = `Hasil_Kuis_Fisika_${userData.name.replace(/\s+/g, '_')}.txt`;
+            
+            document.body.appendChild(anchor); // Diperlukan untuk Firefox
+            anchor.click();
+            document.body.removeChild(anchor);
+            URL.revokeObjectURL(anchor.href);
+        }
+
+        /**
+         * Mengulang Kuis
+         */
+        function restartQuiz() {
+            // Reset state
+            currentQuestionIndex = 0;
+            userAnswers.fill(null);
+            userData = {};
+
+            // Reset form
+            userForm.reset();
+
+            // Tampilkan form info, sembunyikan yang lain
+            resultsContainerDiv.classList.add('hidden');
+            userInfoDiv.classList.remove('hidden');
+            quizContainerDiv.classList.add('hidden');
+        }
+
+        // --- EVENT LISTENERS ---
+        startBtn.addEventListener('click', startQuiz);
+        nextBtn.addEventListener('click', nextQuestion);
+        prevBtn.addEventListener('click', prevQuestion);
+        downloadBtn.addEventListener('click', downloadResults);
+        restartBtn.addEventListener('click', restartQuiz);
+
+    </script>
+</body>
+</html>
+
